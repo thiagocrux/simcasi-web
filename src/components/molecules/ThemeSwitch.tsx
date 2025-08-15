@@ -1,10 +1,9 @@
-// app/components/ThemeSwitch.tsx
 'use client';
 
+import { MoonStar, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-// import { FiMoon, FiSun } from 'react-icons/fi';
 
 export default function ThemeSwitch() {
   const [mounted, setMounted] = useState(false);
@@ -27,12 +26,24 @@ export default function ThemeSwitch() {
   }
 
   if (resolvedTheme === 'dark') {
-    // return <FiSun onClick={() => setTheme('light')} />;
-    return <button onClick={() => setTheme('light')}>light</button>;
+    return (
+      <button
+        className="hover:bg-surface cursor-pointer rounded-md p-2"
+        onClick={() => setTheme('light')}
+      >
+        <Sun size={20} />
+      </button>
+    );
   }
 
   if (resolvedTheme === 'light') {
-    // return <FiMoon onClick={() => setTheme('dark')} />;
-    return <button onClick={() => setTheme('dark')}>dark</button>;
+    return (
+      <button
+        className="hover:bg-surface cursor-pointer rounded-md p-2"
+        onClick={() => setTheme('dark')}
+      >
+        <MoonStar size={20} />
+      </button>
+    );
   }
 }

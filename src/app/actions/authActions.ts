@@ -32,8 +32,6 @@ export async function signInAction(formData: FormData) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.log(error);
-
     return {
       success: false,
       ...error.response?.data.error,
@@ -45,9 +43,6 @@ export async function signInAction(formData: FormData) {
 
 export async function signOutAction() {
   const cookieStore = await cookies();
-
-  console.log(cookieStore.get('accessToken'));
-  console.log(cookieStore.get('session'));
 
   cookieStore.set('accessToken', '', {
     httpOnly: true,
@@ -62,9 +57,6 @@ export async function signOutAction() {
     secure: true,
     maxAge: 0,
   });
-
-  console.log(cookieStore.get('accessToken'));
-  console.log(cookieStore.get('session'));
 
   redirect('/sign-in');
 }

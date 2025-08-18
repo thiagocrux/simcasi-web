@@ -366,3 +366,32 @@ export default function Datepicker({
     </>
   );
 }
+
+/*
+const methods = useForm<Inputs>({
+  resolver: zodResolver(schema),
+  mode: 'onBlur',
+});
+
+const {
+  handleSubmit,
+  formState: { errors, isValid, isDirty },
+  control,
+} = methods;
+
+<Controller
+  name="date";
+  control={control}
+  render={({ field }) => (
+    <>
+      <Datepicker
+        {...field}
+        name="date"
+        label="Data de algo"
+        hasError={!!errors.date && !response?.success}
+        errorMessage={errors.date?.message}
+      />
+    </>
+  )}
+/>
+*/

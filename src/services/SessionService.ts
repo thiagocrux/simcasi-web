@@ -12,7 +12,6 @@ interface SignInDTO {
 
 interface RefreshTokenResponse {
   accessToken: string;
-  session: string;
 }
 
 interface RefreshTokenDTO {

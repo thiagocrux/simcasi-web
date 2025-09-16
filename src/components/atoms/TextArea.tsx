@@ -1,38 +1,31 @@
 'use client';
 
-import { MaskOptions } from '@/types/common';
-import { formatStringWithMask } from '@/utils/formatStringWithMask';
-import { ChangeEvent } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import { AccessibleStatus } from './AccessibleStatus';
 import InputErrorMessage from './InputErrorMessage';
 import InputHelperText from './InputHelperText';
 import InputLabel from './InputLabel';
 
-interface InputProps {
-  type?: string;
+interface TextAreaProps {
   name: string;
   placeholder: string;
   errorMessage?: string;
   label?: string;
   isDisabled?: boolean;
   helperText?: string;
-  mask?: MaskOptions;
   control: Control<any>;
 }
 
-export default function Input({
+export default function TextArea({
   name,
-  type = 'text',
   placeholder,
   errorMessage = '',
   label = '',
   isDisabled = false,
   helperText = '',
   control,
-  mask = '',
-}: InputProps) {
-  const id = `${name}-input`;
+}: TextAreaProps) {
+  const id = `${name}-textarea`;
   const labelId = `${id}-label`;
   const helperTextId = `${id}-helper-text`;
   const errorMessageId = `${id}-error-message`;
@@ -54,22 +47,15 @@ export default function Input({
       render={({ field }) => (
         <div className="flex w-full flex-col gap-y-1">
           {label && <InputLabel id={labelId} htmlFor={id} text={label} />}
-          <input
+          <textarea
             id={id}
-            type={type}
             placeholder={placeholder}
             disabled={isDisabled}
             value={field.value || ''}
             onBlur={field.onBlur}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
-              const value = mask
-                ? formatStringWithMask(event.target.value, mask)
-                : event.target.value;
-
-              field.onChange(value);
-            }}
+            onChange={field.onChange}
             aria-describedby={describedByIds || undefined}
-            className="border-input-border bg-input-background placeholder:text-input-placeholder focus-visible:ring-primary min-h-11 rounded-md border-1 px-4 focus:outline-none focus-visible:ring-2"
+            className="border-input-border bg-input-background placeholder:text-input-placeholder focus-visible:ring-primary min-h-24 rounded-md border-1 px-4 py-2 focus:outline-none focus-visible:ring-2"
           />
           <div>
             <InputHelperText id={helperTextId} text={helperText} />

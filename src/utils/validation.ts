@@ -1,18 +1,19 @@
-export const EMAIL_REGEX =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
 export function getRequiredMessage(fieldName: string) {
-  return `O campo ${fieldName.toLowerCase()} é obrigatório.`;
+  return `O campo ${fieldName} precisa ser informado.`;
 }
 
 export function getInvalidFormatMessage(fieldName: string) {
-  return `O formato do campo ${fieldName.toLowerCase()} é inválido.`;
+  return `O formato do campo ${fieldName} é inválido.`;
+}
+
+export function getInvalidOptionMessage(fieldName: string) {
+  return `A opção escolhida no campo ${fieldName.toLowerCase()} é inválida.`;
 }
 
 export function getMinLengthMessage(fieldName: string, min: number) {
-  return `${fieldName} deve ter pelo menos ${min} caracteres.`;
+  return `${fieldName} deve ter pelo menos ${min} caractere(s).`;
 }
 
 export function getMaxLengthMessage(fieldName: string, max: number) {
-  return `${fieldName} deve ter pelo menos ${max} caracteres.`;
+  return `${fieldName} deve ter no máximo ${max} caractere(s).`;
 }

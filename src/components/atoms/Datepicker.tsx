@@ -1,12 +1,20 @@
+'use client';
+
+import { formatStringWithMask } from '@/utils/formatStringWithMask';
+import clsx from 'clsx';
 import { ptBR } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Calendar1, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { Controller } from 'react-hook-form';
+import { AccessibleStatus } from './AccessibleStatus';
+import InputErrorMessage from './InputErrorMessage';
+import InputHelperText from './InputHelperText';
+import InputLabel from './InputLabel';
 
 import {
   addDays,
   addMonths,
   addYears,
-  constructNow,
   format,
   getDay,
   getDaysInMonth,
@@ -21,43 +29,61 @@ import {
 } from 'date-fns';
 
 type Props = {
-  value: string;
-  onChange: (date: string | undefined) => void;
   name: string;
-  initialDate?: Date;
+  startDate?: Date;
   disableWeekendSelection?: boolean;
   isDisabled?: boolean;
-  hasError?: boolean;
+  helperText?: string;
   errorMessage?: string;
   label?: string;
+  control: any;
 };
 
 type Header = 'month-year' | 'year' | 'year-range';
 
 export default function Datepicker({
   name,
+  control,
   disableWeekendSelection = false,
   isDisabled = false,
-  hasError = false,
+  helperText = '',
   errorMessage = '',
   label = '',
-  onChange,
+  startDate = new Date(),
 }: Props) {
+  const id = `${name}-datepicker`;
+  const labelId = `${id}-label`;
+  const helperTextId = `${id}-helper-text`;
+  const errorMessageId = `${id}-error-message`;
+  const hasError = Boolean(errorMessage);
+
+  const describedByIds = [
+    helperText && helperTextId,
+    hasError && errorMessageId,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   const datepickerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [value, setValue] = useState<Date | undefined>(undefined);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(startDate);
+  const [referenceDate, setReferenceDate] = useState<Date>(startDate);
   const [calendarVariant, setCalendarVariant] = useState<Header>('month-year');
   const [isVisible, setIsVisible] = useState(false);
 
-  const [referenceDate, setReferenceDate] = useState<Date>(
-    value || constructNow(new Date())
-  );
-
-  // Conditionals and consts
   const DAYS_OF_THE_WEEK = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
   const DATES_PER_PAGE = 42;
+  const PAST_DECADE_THRESHOLD = getDecade(new Date().setFullYear(1890));
+  const FUTURE_DECADE_THRESHOLD = getDecade(new Date()) + 100;
   const showDaysOfTheWeek = calendarVariant === 'month-year';
+
+  const isPreviousButtonDisabled =
+    calendarVariant === 'year-range' &&
+    getDecade(referenceDate) - 10 < PAST_DECADE_THRESHOLD;
+
+  const isNextButtonDisabled =
+    calendarVariant === 'year-range' &&
+    getDecade(referenceDate) + 10 > FUTURE_DECADE_THRESHOLD;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -67,6 +93,7 @@ export default function Datepicker({
         !datepickerRef.current.contains(event.target as Node) &&
         event.target !== inputRef.current
       ) {
+        resetCalendarView();
         setIsVisible(false);
       }
     }
@@ -79,14 +106,9 @@ export default function Datepicker({
   }, [isVisible]);
 
   function isDateDisabled(date: Date) {
-    if (disableWeekendSelection && isWeekend(date)) {
-      return true;
-    }
-
-    return false;
+    return Boolean(disableWeekendSelection && isWeekend(date));
   }
 
-  /* HEADER */
   function getFormattedHeaderLabel() {
     switch (calendarVariant) {
       case 'month-year':
@@ -103,6 +125,18 @@ export default function Datepicker({
       setCalendarVariant('year');
     } else if (calendarVariant === 'year') {
       setCalendarVariant('year-range');
+    }
+  }
+
+  function resetCalendarView() {
+    setReferenceDate(selectedDate!);
+    setCalendarVariant('month-year');
+  }
+
+  function handleDatepickerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === 'Escape') {
+      resetCalendarView();
+      setIsVisible(false);
     }
   }
 
@@ -128,13 +162,11 @@ export default function Datepicker({
     }
   }
 
-  /* DATES SELECTOR */
   function getDates() {
     const daysInMonth = getDaysInMonth(referenceDate);
     const firstDateOfTheMonth = set(referenceDate, { date: 1 });
     const lastDateOfTheMonth = set(referenceDate, { date: daysInMonth });
     const firstWeekDayOfTheMonth = getDay(firstDateOfTheMonth);
-
     const dates: Date[] = [];
 
     // Add dates from current month
@@ -158,10 +190,10 @@ export default function Datepicker({
   }
 
   function getMonths() {
-    const ANNUAL_MONTHS_COUNT = 12;
+    const MONTHS_PER_YEAR = 12;
     const months: Date[] = [];
 
-    for (let index = 0; index < ANNUAL_MONTHS_COUNT; index++) {
+    for (let index = 0; index < MONTHS_PER_YEAR; index++) {
       months.push(set(referenceDate, { date: 1, month: index }));
     }
 
@@ -173,10 +205,10 @@ export default function Datepicker({
 
   function getYears() {
     const REFERENCE_DATE_DECADE = getDecade(referenceDate);
-    const DECADE_COUNT = 10;
+    const YEARS_PER_DECADE = 10;
     const years: Date[] = [];
 
-    for (let index = 0; index < DECADE_COUNT; index++) {
+    for (let index = 0; index < YEARS_PER_DECADE; index++) {
       years.push(set(referenceDate, { year: REFERENCE_DATE_DECADE + index }));
     }
 
@@ -211,187 +243,227 @@ export default function Datepicker({
     return 'default';
   }
 
-  function handleInputClick(event: React.MouseEvent<HTMLInputElement>) {
+  function handleInputClick() {
     if (isVisible) {
-      event.stopPropagation();
       setIsVisible(false);
     } else {
       setIsVisible(true);
     }
   }
 
-  function confirmAndClose() {
-    if (!selectedDate) {
-      setIsVisible(false);
-      return;
-    }
-
-    setValue(selectedDate);
-    onChange(selectedDate ? selectedDate.toISOString() : '');
-    setSelectedDate(null);
-    setIsVisible(false);
-  }
-
   /* STYLES */
 
-  const commonHeaderButtonStyles = `flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md border-none bg-transparent cursor-pointer transition-all duration-100 ease-in-out hover:bg-surface select-none`;
-  const commonSelectorStyles = 'w-full text-center grid gap-2 my-2';
-  const commonVariantStyles = `rounded-md transition-all duration-100 ease-in-out select-none`;
+  const commonStyles = {
+    button: `flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md border-none bg-transparent cursor-pointer transition-all duration-100 ease-in-out hover:bg-surface select-none`,
+    selector: 'w-full text-center grid gap-2 my-2',
+    variant: `rounded-md transition-all duration-100 ease-in-out select-none`,
+  };
 
-  const variantModifiers: Record<string, string> = {
-    default: `text-text-default hover:bg-surface ${commonVariantStyles}`,
-    selected: `text-text-primary bg-primary hover:bg-primary-hover ${commonVariantStyles}`,
-    'selected-dimmed': `text-text-primary bg-primary opacity-50 hover:opacity-60 hover:bg-primary-hover ${commonVariantStyles}`,
-    weekend: `text-error hover:bg-surface ${commonVariantStyles}`,
-    dimmed: `text-text-disabled hover:bg-surface ${commonVariantStyles}`,
+  const variantStyles: Record<string, string> = {
+    default: `text-text-default hover:bg-surface ${commonStyles.variant}`,
+    selected: `text-text-primary bg-primary hover:bg-primary-hover ${commonStyles.variant}`,
+    'selected-dimmed': `text-text-primary bg-primary opacity-50 hover:opacity-60 hover:bg-primary-hover ${commonStyles.variant}`,
+    weekend: `text-error hover:bg-surface ${commonStyles.variant}`,
+    dimmed: `text-text-disabled hover:bg-surface ${commonStyles.variant}`,
   } as const;
 
   return (
-    <>
-      <div className="relative flex w-full flex-col gap-y-2">
-        {label && <label htmlFor={name}>{label}</label>}
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={''}
+      render={({ field }) => {
+        return (
+          <>
+            <div className="relative flex w-full flex-col gap-y-1">
+              {label && <InputLabel id={labelId} htmlFor={id} text={label} />}
+              {/* SECTION: Input */}
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  id={id}
+                  name={name}
+                  value={field.value || ''}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    const value = formatStringWithMask(
+                      event.target.value,
+                      'date'
+                    );
 
-        <input
-          ref={inputRef}
-          name={name}
-          value={value ? format(value, 'dd/MM/yyyy') : ''}
-          placeholder="--/--/----"
-          disabled={isDisabled}
-          onClick={handleInputClick}
-          readOnly
-          className="border-input-border bg-input-background placeholder:text-input-placeholder focus:ring-primary min-h-11 w-full cursor-pointer rounded-md border-1 px-4 focus:ring-2 focus:outline-none"
-        />
-
-        {isVisible && (
-          <div
-            ref={datepickerRef}
-            className={`bg-input-background border-input-border absolute left-1/2 flex -translate-x-1/2 flex-col items-center rounded-sm border-1 p-4 text-[14px] ${label ? 'top-21' : 'top-20'} w-60`}
-          >
-            {/* HEADER */}
-            <div className="flex w-full justify-between">
-              <span
-                className={`${commonHeaderButtonStyles}`}
-                onClick={() => handleVariantNavigation('previous')}
-              >
-                <ChevronLeft size={16} />
-              </span>
-              <span
-                className={`${commonHeaderButtonStyles} w-full font-bold`}
-                onClick={handleVariantSelection}
-              >
-                {getFormattedHeaderLabel()}
-              </span>
-              <span
-                className={`${commonHeaderButtonStyles}`}
-                onClick={() => handleVariantNavigation('forward')}
-              >
-                <ChevronRight size={16} />
-              </span>
-            </div>
-
-            {/* DAYS OF THE WEEK */}
-            {showDaysOfTheWeek && (
-              <div className="mt-2 grid w-full grid-cols-7 grid-rows-1 gap-x-2">
-                {DAYS_OF_THE_WEEK.map((day, index) => (
-                  <span
-                    className="flex min-h-6 min-w-6 items-center justify-center text-xs font-semibold select-none"
-                    key={index}
-                  >
-                    {day}
-                  </span>
-                ))}
+                    field.onChange(value);
+                  }}
+                  placeholder="dd/mm/aaaa"
+                  disabled={isDisabled}
+                  aria-describedby={describedByIds || undefined}
+                  className={clsx(
+                    'border-input-border bg-input-background placeholder:text-input-placeholder focus-visible:ring-primary mb-1 flex min-h-11 w-full items-center rounded-md border-1 pr-8 pl-4 select-none focus:outline-none focus-visible:ring-2',
+                    { 'cursor-not-allowed opacity-50': isDisabled }
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={handleInputClick}
+                  disabled={isDisabled}
+                  className={clsx(
+                    'focus-visible:ring-primary absolute top-5.5 right-2 z-2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-sm transition-all duration-300 focus:outline-none focus-visible:ring-2',
+                    {
+                      'cursor-not-allowed': isDisabled,
+                      'cursor-pointer': !isDisabled,
+                    }
+                  )}
+                >
+                  <Calendar1 size={16} />
+                </button>
               </div>
-            )}
-
-            {/* SELECTOR */}
-            {calendarVariant === 'month-year' ? (
-              <div
-                className={`${commonSelectorStyles} grid-cols-7 grid-rows-6`}
-              >
-                {getDates().map(({ date, label }, index) => (
-                  /* DAY SELECTOR */
-                  <span
-                    key={index}
-                    className={`${variantModifiers[getVariant(date)]} ${!isDateDisabled(date) && 'cursor-pointer'} flex min-h-6 min-w-6 items-center justify-center`}
-                    onClick={() => handleDateSelection(date)}
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-            ) : calendarVariant === 'year' ? (
-              <div
-                className={`${commonSelectorStyles} grid-cols-3 grid-rows-4`}
-              >
-                {getMonths().map(({ date, label }, index) => (
-                  /* MONTH SELECTOR */
-                  <span
-                    className="hover:bg-surface cursor-pointer rounded-md select-none"
-                    key={index}
-                    onClick={() => handleMonthSelection(date)}
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div
-                className={`${commonSelectorStyles} grid-cols-3 grid-rows-4`}
-              >
-                {getYears().map(({ date, label }, index) => (
-                  /* YEAR SELECTOR */
-                  <div
-                    className="hover:bg-surface cursor-pointer rounded-md select-none"
-                    key={index}
-                    onClick={() => handleYearSelection(date)}
-                  >
-                    {label}
+              {/* SECTION: Datepicker */}
+              {isVisible && (
+                <div
+                  ref={datepickerRef}
+                  className={clsx(
+                    'bg-input-background border-input-border absolute left-1/2 z-2 flex w-60 -translate-x-1/2 flex-col items-center rounded-sm border-1 p-4 text-[14px]',
+                    {
+                      'top-19.5': label,
+                      'top-20': !label,
+                    }
+                  )}
+                >
+                  {/* SECTION: Header */}
+                  <div className="flex w-full justify-between">
+                    <button
+                      type="button"
+                      className={clsx(commonStyles.button, {
+                        'hover:bg-input-background! text-text-disabled cursor-default!':
+                          isPreviousButtonDisabled,
+                      })}
+                      disabled={isPreviousButtonDisabled}
+                      onKeyDown={handleDatepickerKeyDown}
+                      onClick={() => handleVariantNavigation('previous')}
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      className={clsx(commonStyles.button, 'w-full font-bold')}
+                      onKeyDown={handleDatepickerKeyDown}
+                      onClick={handleVariantSelection}
+                    >
+                      {getFormattedHeaderLabel()}
+                    </button>
+                    <button
+                      type="button"
+                      className={clsx(commonStyles.button, {
+                        'hover:bg-input-background! text-text-disabled cursor-default!':
+                          isNextButtonDisabled,
+                      })}
+                      disabled={isNextButtonDisabled}
+                      onKeyDown={handleDatepickerKeyDown}
+                      onClick={() => handleVariantNavigation('forward')}
+                    >
+                      <ChevronRight size={16} />
+                    </button>
                   </div>
-                ))}
+                  {/* DAYS OF THE WEEK */}
+                  {showDaysOfTheWeek && (
+                    <div className="mt-2 grid w-full grid-cols-7 grid-rows-1 gap-x-2">
+                      {DAYS_OF_THE_WEEK.map((day, index) => (
+                        <span
+                          className="flex min-h-6 min-w-6 items-center justify-center text-xs font-semibold select-none"
+                          key={index}
+                        >
+                          {day}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {/* SECTION: Date selection */}
+                  {calendarVariant === 'month-year' ? (
+                    <div
+                      className={clsx(
+                        commonStyles.selector,
+                        'grid-cols-7 grid-rows-6'
+                      )}
+                    >
+                      {getDates().map(({ date, label }, index) => (
+                        <button
+                          type="button"
+                          key={index}
+                          onKeyDown={handleDatepickerKeyDown}
+                          onClick={() => handleDateSelection(date)}
+                          className={clsx(
+                            variantStyles[getVariant(date)],
+                            'flex min-h-6 min-w-6 items-center justify-center',
+                            { 'cursor-pointer': !isDateDisabled(date) }
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : calendarVariant === 'year' ? (
+                    <div
+                      className={clsx(
+                        commonStyles.selector,
+                        'grid-cols-3 grid-rows-4'
+                      )}
+                    >
+                      {getMonths().map(({ date, label }, index) => (
+                        <button
+                          type="button"
+                          className="hover:bg-surface cursor-pointer rounded-md select-none"
+                          key={index}
+                          onKeyDown={handleDatepickerKeyDown}
+                          onClick={() => handleMonthSelection(date)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      className={clsx(
+                        commonStyles.selector,
+                        'grid-cols-3 grid-rows-4'
+                      )}
+                    >
+                      {getYears().map(({ date, label }, index) => (
+                        <button
+                          type="button"
+                          className="hover:bg-surface cursor-pointer rounded-md select-none"
+                          key={index}
+                          onKeyDown={handleDatepickerKeyDown}
+                          onClick={() => handleYearSelection(date)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {/* SECTION: Confirmation */}
+                  <div className="flex w-full">
+                    <button
+                      type="button"
+                      onKeyDown={handleDatepickerKeyDown}
+                      onClick={() => {
+                        field.onChange(format(selectedDate!, 'dd/MM/yyyy'));
+                        resetCalendarView();
+                        setIsVisible(false);
+                      }}
+                      className="bg-primary hover:bg-primary-hover text-text-primary mt-2 h-9 flex-1 cursor-pointer rounded-sm text-xs font-medium"
+                    >
+                      OK
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div>
+                <InputHelperText id={helperTextId} text={helperText} />
+                <InputErrorMessage id={errorMessageId} message={errorMessage} />
+                <AccessibleStatus label={label} value={field.value} />
               </div>
-            )}
-            <div className="flex w-full">
-              <button
-                className="bg-primary hover:bg-primary-hover text-text-primary mt-2 h-9 flex-1 cursor-pointer rounded-sm text-xs font-medium"
-                onClick={confirmAndClose}
-              >
-                OK
-              </button>
             </div>
-          </div>
-        )}
-      </div>
-
-      {hasError && <span className="text-error text-md">{errorMessage}</span>}
-    </>
+          </>
+        );
+      }}
+    />
   );
 }
-
-/*
-const methods = useForm<Inputs>({
-  resolver: zodResolver(schema),
-  mode: 'onBlur',
-});
-
-const {
-  handleSubmit,
-  formState: { errors, isValid, isDirty },
-  control,
-} = methods;
-
-<Controller
-  name="date";
-  control={control}
-  render={({ field }) => (
-    <>
-      <Datepicker
-        {...field}
-        name="date"
-        label="Data de algo"
-        hasError={!!errors.date && !response?.success}
-        errorMessage={errors.date?.message}
-      />
-    </>
-  )}
-/>
-*/

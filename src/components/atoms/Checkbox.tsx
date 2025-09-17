@@ -86,6 +86,7 @@ export default function Checkbox({
                 tabIndex={-1}
                 type="checkbox"
                 checked={field.value}
+                onChange={field.onChange}
                 aria-hidden={true}
                 className="hidden"
               />

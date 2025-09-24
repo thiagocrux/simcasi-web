@@ -56,6 +56,8 @@ const config: Config = {
         'datepicker-highlight': 'var(--color-datepicker-highlight)',
         'datepicker-error': 'var(--color-datepicker-error)',
         'datepicker-text': 'var(--color-datepicker-text)',
+
+        backdrop: 'var(--color-backdrop)',
       },
     },
   },

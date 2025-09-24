@@ -23,6 +23,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      focus-trap-react:
+        specifier: ^11.0.4
+        version: 11.0.4(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       lucide-react:
         specifier: ^0.536.0
         version: 0.536.0(react@19.1.0)
@@ -1275,6 +1278,17 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
+  focus-trap-react@11.0.4:
+    resolution: {integrity: sha512-tC7jC/yqeAqhe4irNIzdyDf9XCtGSeECHiBSYJBO/vIN0asizbKZCt8TarB6/XqIceu42ajQ/U4lQJ9pZlWjrg==}
+    peerDependencies:
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+
+  focus-trap@7.6.5:
+    resolution: {integrity: sha512-7Ke1jyybbbPZyZXFxEftUtxFGLMpE2n6A+z//m4CRDlj0hW+o3iYSmh8nFlYMurOiJVDmJRilUQtJr08KfIxlg==}
+
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
@@ -2270,6 +2284,9 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  tabbable@6.2.0:
+    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
 
   tailwindcss@4.1.11:
     resolution: {integrity: sha512-2E9TBm6MDD/xKYe+dvJZAmg3yxIEDNRc0jwlNyDg/4Fil2QcSLjFKGVff0lAf1jjeaArlG/M75Ey/EYr/OJtBA==}
@@ -3749,6 +3766,19 @@ snapshots:
 
   flatted@3.3.3: {}
 
+  focus-trap-react@11.0.4(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@types/react': 19.1.6
+      '@types/react-dom': 19.1.6(@types/react@19.1.6)
+      focus-trap: 7.6.5
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      tabbable: 6.2.0
+
+  focus-trap@7.6.5:
+    dependencies:
+      tabbable: 6.2.0
+
   follow-redirects@1.15.9: {}
 
   for-each@0.3.5:
@@ -4701,6 +4731,8 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  tabbable@6.2.0: {}
 
   tailwindcss@4.1.11: {}
 

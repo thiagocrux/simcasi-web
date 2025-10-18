@@ -8,12 +8,12 @@ import { httpClient } from './utils/httpClient';
 
 export class AccountService {
   static async getAccount(id: string): Promise<AccountResponse> {
-    const { data } = await httpClient.post(`/accounts/${id}`);
+    const { data } = await httpClient.get(`/accounts/${id}`);
     return data;
   }
 
   static async getAllAccounts(): Promise<AccountResponse[]> {
-    const { data } = await httpClient.post('/accounts');
+    const { data } = await httpClient.get('/accounts');
     return data;
   }
 
@@ -31,12 +31,12 @@ export class AccountService {
     id: string;
     updateData: UpdateAccountDTO;
   }): Promise<AccountResponse> {
-    const { data } = await httpClient.post(`/accounts/${id}`, updateData);
+    const { data } = await httpClient.put(`/accounts/${id}`, updateData);
     return data;
   }
 
   static async deleteAccount(id: string): Promise<void> {
-    const { data } = await httpClient.post(`/accounts/${id}`);
+    const { data } = await httpClient.delete(`/accounts/${id}`);
     return data;
   }
 }

@@ -31,12 +31,12 @@ export class PatientService {
     id: string;
     updateData: UpdatePatientDTO;
   }): Promise<PatientResponse> {
-    const { data } = await httpClient.post(`/patients/${id}`, updateData);
+    const { data } = await httpClient.put(`/patients/${id}`, updateData);
     return data;
   }
 
   static async deletePatient(id: string): Promise<void> {
-    const { data } = await httpClient.post(`/patients/${id}`);
+    const { data } = await httpClient.delete(`/patients/${id}`);
     return data;
   }
 }

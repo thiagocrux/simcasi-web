@@ -8,12 +8,12 @@ import { httpClient } from './utils/httpClient';
 
 export class PermissionService {
   static async getPermission(id: string): Promise<PermissionResponse> {
-    const { data } = await httpClient.post(`/permissions/${id}`);
+    const { data } = await httpClient.get(`/permissions/${id}`);
     return data;
   }
 
   static async getAllPermissions(): Promise<PermissionResponse[]> {
-    const { data } = await httpClient.post('/permissions');
+    const { data } = await httpClient.get('/permissions');
     return data;
   }
 
@@ -31,12 +31,12 @@ export class PermissionService {
     id: string;
     updateData: UpdatePermissionDTO;
   }): Promise<PermissionResponse> {
-    const { data } = await httpClient.post(`/permissions/${id}`, updateData);
+    const { data } = await httpClient.put(`/permissions/${id}`, updateData);
     return data;
   }
 
   static async deletePermission(id: string): Promise<void> {
-    const { data } = await httpClient.post(`/permissions/${id}`);
+    const { data } = await httpClient.delete(`/permissions/${id}`);
     return data;
   }
 }

@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { ptBR } from 'date-fns/locale';
 import { Calendar1, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { AccessibleStatus } from './AccessibleStatus';
 import InputErrorMessage from './InputErrorMessage';
 import InputHelperText from './InputHelperText';
@@ -28,20 +28,20 @@ import {
   subYears,
 } from 'date-fns';
 
-type Props = {
-  name: string;
+interface DatepickerProps<T extends FieldValues> {
+  name: Path<T>;
   startDate?: Date;
   disableWeekendSelection?: boolean;
   isDisabled?: boolean;
   helperText?: string;
   errorMessage?: string;
   label?: string;
-  control: any;
-};
+  control: Control<T>;
+}
 
 type Header = 'month-year' | 'year' | 'year-range';
 
-export default function Datepicker({
+export default function Datepicker<T extends FieldValues>({
   name,
   control,
   disableWeekendSelection = false,
@@ -50,7 +50,7 @@ export default function Datepicker({
   errorMessage = '',
   label = '',
   startDate = new Date(),
-}: Props) {
+}: DatepickerProps<T>) {
   const id = `${name}-datepicker`;
   const labelId = `${id}-label`;
   const helperTextId = `${id}-helper-text`;
@@ -271,7 +271,6 @@ export default function Datepicker({
     <Controller
       name={name}
       control={control}
-      defaultValue={''}
       render={({ field }) => {
         return (
           <>

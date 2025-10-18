@@ -1,9 +1,8 @@
 'use client';
 
-import { CircleUser, LogOut } from 'lucide-react';
-
 import { signOutAction } from '@/app/actions/authActions';
-import { usePathname } from 'next/navigation';
+import { CircleUser, LogOut } from 'lucide-react';
+import { redirect, usePathname } from 'next/navigation';
 import ThemeSwitch from '../molecules/ThemeSwitch';
 
 export default function Navbar() {
@@ -15,11 +14,12 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="border-border mb-12 flex min-h-16 items-center justify-between border-b-1 px-8">
-      <div>
+    <nav className="border-border mb-8 flex min-h-16 items-center justify-between border-b-1 px-8">
+      <div onClick={() => redirect('/dashboard')} className="cursor-pointer">
         <p>LOGO</p>
       </div>
       <div className="flex items-center gap-x-2">
+        <ThemeSwitch />
         {showButtons && (
           <>
             <button className="hover:bg-surface cursor-pointer rounded-md p-2">
@@ -33,7 +33,6 @@ export default function Navbar() {
             </button>
           </>
         )}
-        <ThemeSwitch />
       </div>
     </nav>
   );

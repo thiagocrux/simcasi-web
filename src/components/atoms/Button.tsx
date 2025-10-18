@@ -13,27 +13,28 @@ interface ButtonProps {
   className?: string;
   type?: 'button' | 'submit';
   onClick?: () => void;
+  customClasses?: string;
 }
 
 export default function Button({
   id,
   children,
-  className,
-  shape = 'round',
+  // shape = 'round',
   color = 'filled',
   // size = 'small',
   isHidden = false,
   isDisabled = false,
   type = 'button',
   onClick,
+  customClasses = '',
 }: ButtonProps) {
   const baseClasses =
     'w-full text-white min-h-11 rounded-md cursor-pointer min-h-11 rounded-md border-1 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary';
 
-  const shapeClasses = {
-    round: '',
-    square: '',
-  } as const;
+  // const shapeClasses = {
+  //   round: '',
+  //   square: '',
+  // } as const;
 
   const colorClasses = {
     disabled: 'bg-gray-500 text-white',
@@ -44,13 +45,13 @@ export default function Button({
     tonal: '',
   } as const;
 
-  const sizeClasses = {
-    xs: '',
-    sm: 'p-8',
-    md: '',
-    lg: '',
-    xl: '',
-  } as const;
+  // const sizeClasses = {
+  //   xs: '',
+  //   sm: 'p-8',
+  //   md: '',
+  //   lg: '',
+  //   xl: '',
+  // } as const;
 
   if (isHidden) {
     return null;
@@ -63,7 +64,8 @@ export default function Button({
       type={type}
       className={clsx(
         baseClasses,
-        isDisabled ? colorClasses['disabled'] : colorClasses[color]
+        isDisabled ? colorClasses['disabled'] : colorClasses[color],
+        customClasses
       )}
       onClick={onClick}
       disabled={isDisabled}

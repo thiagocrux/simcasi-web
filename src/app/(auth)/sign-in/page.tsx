@@ -1,23 +1,19 @@
 'use client';
 
+import { signInAction } from '@/app/actions/authActions';
+import Button from '@/components/atoms/Button';
+import Input from '@/components/atoms/Input';
+import InputErrorMessage from '@/components/atoms/InputErrorMessage';
+import { REGEX } from '@/constants/common';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { signInAction } from '@/app/actions/authActions';
-import Input from '@/components/atoms/Input';
-import { zodResolver } from '@hookform/resolvers/zod';
-
 import {
-  EMAIL_REGEX,
   getInvalidFormatMessage,
   getRequiredMessage,
 } from '@/utils/validation';
-
-interface Inputs {
-  email: string;
-  password: string;
-}
 
 interface ActionResult {
   success: boolean;
@@ -33,18 +29,21 @@ export default function SignInPage() {
     email: z
       .string()
       .min(1, getRequiredMessage('e-mail'))
-      .regex(EMAIL_REGEX, getInvalidFormatMessage('e-mail')),
+      .regex(REGEX.email, getInvalidFormatMessage('e-mail')),
     password: z.string().min(1, getRequiredMessage('senha')),
   });
 
+  type Inputs = z.infer<typeof schema>;
+
   const methods = useForm<Inputs>({
     resolver: zodResolver(schema),
-    mode: 'onBlur',
+    mode: 'all',
   });
 
   const {
     handleSubmit,
     formState: { errors, isValid, isDirty },
+    control,
   } = methods;
 
   async function onSubmit(data: Inputs) {
@@ -74,29 +73,31 @@ export default function SignInPage() {
             name="email"
             label="E-mail"
             placeholder="E-mail"
-            hasError={!!errors.email && !response?.success}
             errorMessage={errors.email?.message}
+            control={control}
           />
-
           <Input
+            type="password"
             name="password"
             label="Senha"
             placeholder="Senha"
-            hasError={!!errors.password && !response?.success}
             errorMessage={errors.password?.message}
+            control={control}
           />
-
-          {response?.success === false && (
-            <p className="text-red-400">
-              {response?.name === 'InvalidCredentialsError' &&
-                'Credenciais inválidas.'}
-            </p>
-          )}
-
-          <button type="submit" className="mt-4 cursor-pointer">
+          {response?.success === false &&
+            response?.name === 'InvalidCredentialsError' && (
+              <InputErrorMessage
+                id="login-error-message"
+                message="Credenciais inválidas."
+              />
+            )}
+          <Button
+            id="login-button"
+            type="submit"
+            isDisabled={isSubmitButtonDisabled}
+          >
             Entrar
-          </button>
-
+          </Button>
           <p className="text-center text-blue-500">
             Esqueceu a senha? <u>Clique aqui.</u>
           </p>

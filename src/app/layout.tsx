@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 
+import Footer from '@/components/organisms/Footer';
 import Navbar from '@/components/organisms/Navbar';
 import { Providers } from './providers';
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main className="mx-auto w-full max-w-5xl flex-1">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

@@ -10,13 +10,16 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...compat.extends(
+    'next/core-web-vitals',
+    'next/typescript',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+    'plugin:react-hooks/recommended'
+  ),
   {
     rules: {
-      '@typescript-eslint/no-empty-object-type': [
-        'error',
-        { allowInterfaces: true },
-      ],
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 ];

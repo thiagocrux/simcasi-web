@@ -6,8 +6,8 @@ export const GENDER_OPTIONS = [
 ];
 
 export const NATIONALITY_OPTIONS = [
-  { label: 'Brasileiro', value: 'Brasileiro' },
-  { label: 'Estrangeiro', value: 'Estrangeiro' },
+  { label: 'Brasileira', value: 'Brasileira' },
+  { label: 'Estrangeira', value: 'Estrangeira' },
 ];
 
 export const RACE_OPTIONS = [

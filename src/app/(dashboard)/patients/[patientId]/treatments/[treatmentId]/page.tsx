@@ -31,7 +31,7 @@ import {
 export default function TreatmentForm() {
   const router = useRouter();
   const { patientId, treatmentId } = useParams();
-  const isUpdatingTreatment = !!patientId && patientId !== 'new';
+  const isUpdatingTreatment = !!treatmentId && treatmentId !== 'new';
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
